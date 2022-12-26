@@ -22,7 +22,10 @@ def search_doc(arg):
         for i in range(len(matches)):
             print(Fore.GREEN + str(i) + Fore.RESET, end='')
             print(": ", end='')
-            print((Fore.RED + matches[i].key + Fore.RESET).ljust(40), end=' ')
+            words = matches[i].key.split(",")
+            filtered_words = filter(lambda x: arg in x.lower(), words)
+            list_str = ', '.join(filtered_words)
+            print((Fore.RED + list_str + Fore.RESET).ljust(60), end=' ')
             print(matches[i].desc)
         choice = input('\nPlease select one: ')
         return matches[int(choice)]

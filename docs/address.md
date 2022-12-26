@@ -1,5 +1,5 @@
 ---
-key: address
+key: address,balance,code,codehash,transfer,send,call,delegatecall,staticcall
 desc: 地址
 ---
 

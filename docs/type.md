@@ -1,5 +1,5 @@
 ---
-key: type
+key: type,name,creationCode,runtimeCode,interfaceId,min,max
 desc: 类型信息获取
 ---
 

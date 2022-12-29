@@ -8,9 +8,9 @@ from colorama import init, Fore, Back
 def search_doc(arg):
     arg = arg.lower()
     matches = []
-    for k in KeywordsToDocMapping.keys():
-        if k.lower().startswith(arg):
-            matches.append(KeywordsToDocMapping[k])
+    # for k in KeywordsToDocMapping.keys():
+    #     if k.lower().startswith(arg):
+    #         matches.append(KeywordsToDocMapping[k])
     if len(matches) == 0:
         for k in KeywordsToDocMapping.keys():
             if arg in k.lower():

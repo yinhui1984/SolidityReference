@@ -57,3 +57,4 @@ function func(address _contract, address _param1, uint256 _param2) view returns 
 }
 ```
 
+>注意, 类型要写全称, 比如`uint256` 而不是 `uint`

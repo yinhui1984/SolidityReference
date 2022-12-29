@@ -1,5 +1,5 @@
 ---
-key: tx
+key: tx,gasprice,origin
 desc: 当前交易
 ---
 

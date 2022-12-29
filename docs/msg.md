@@ -1,5 +1,5 @@
 ---
-key: msg
+key: msg,sender,data,sig,value
 desc: 消息
 ---
 

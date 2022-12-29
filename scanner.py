@@ -38,6 +38,7 @@ def index_keywords():
                             KeywordsToDocMapping[v] = Doc(f, d['desc'], v)
                 except:
                     # get filename without ext
+                    f = os.path.join(dir, DOC_DIR, f)
                     filename = os.path.splitext(f)[0]
                     KeywordsToDocMapping[filename] = Doc(f, '', filename)
                     pass

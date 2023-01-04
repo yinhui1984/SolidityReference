@@ -35,4 +35,8 @@ abi.encodeWithSelector(bytes4(keccak256(bytes(signature)), ...) returns (bytes m
 bytes memory callData = abi.encodeWithSignature("add(uint256,uint256)", 1, 2);
 ```
 
-> 注意, 类型要写全称, 比如`uint256` 而不是 `uint`
+> 注意:
+>
+> 1,  类型要写全称, 比如`uint256` 而不是 `uint`
+>
+> 2, 传入的字符串不要有空格

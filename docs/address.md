@@ -123,9 +123,19 @@ function sendViaCall(address payable _to) public payable {
 }
 ```
 
+```solidity
+(bool success, bytes memory result) = addr.call(abi.encodeWithSignature("myFunction(uint,address)", 10, msg.sender));
+```
+
+```solidity
+_addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uint,address)", 10, msg.sender));
+```
 
 
 
+> 在大多数情况下，对于合约函数的调用，<u>不推荐</u>使用 call，因为它绕过了类型检查、函数存在性检查和参数打包,  以及 revert时不会向上冒泡传递。最好是导入合约的接口来调用其上的函数。
+
+> call比在合同实例上调用函数消耗的gas更少。所以在某些情况下，调用是优化gas的首选。
 
 ## delegatecall
 
@@ -135,7 +145,11 @@ function sendViaCall(address payable _to) public payable {
 
 用给定的数据发出低级别的 `DELEGATECALL`，返回是否成功的结果和数据，发送所有可用 gas，可调节。
 
+`delegatecall`用于从合约A调用合约B的一个函数，并向该函数提供合约A的上下文(存储、余额和地址)。这样做的目的是将合约B中的函数作为库代码使用。因为该函数将表现为它是合约A本身的一个函数。请看这个帖子的代码例子: https://solidity-by-example.org/delegatecall/
 
+`delegatecall`语法与`call`语法完全相同，只是它**不能接受**`value`选项，只能接受`gas`选项。
+
+`delegatecall`的一个流行且非常有用的用例是可升级合约。可升级合约使用一个代理合约，它将所有的函数调用转发给使用delegatecall的执行合约。代理合约的地址保持不变，而新的实现可以被多次部署。新实现的地址在代理合约中被更新。代理合约有完整的合约存储的状态。详细解释请查看[Openzepplin](https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies)文档。
 
 ## staticcall
 
@@ -144,3 +158,6 @@ function sendViaCall(address payable _to) public payable {
 ```
 
 用给定的数据发出低级别的 `STATICCALL`，返回是否成功的结果和数据，发送所有可用 gas，可调节。
+
+ `staticcall` 与 `call `完全一样，唯一的区别是它不能修改被调用的合约的状态。
+

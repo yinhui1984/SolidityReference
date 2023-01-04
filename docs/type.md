@@ -25,6 +25,14 @@ https://docs.soliditylang.org/zh/latest/units-and-global-variables.html#meta-typ
 
   内存字节数组，包含合约运行时的字节码。 通常是由 `C` 的构造函数部署的代码。 如果 `C` 有一个使用内联汇编的构造函数，这可能与实际部署的字节码不同。 还要注意的是，库合约在部署时修改其运行时字节码，以防止常规调用。 与 `.creationCode` 相同的限制也适用于这个属性。
 
+
+
+>runtimeCode 与 creationCode的比较
+>
+>https://medium.com/authereum/bytecode-and-init-code-and-runtime-code-oh-my-7bcd89065904
+>
+>https://blog.openzeppelin.com/deconstructing-a-solidity-contract-part-ii-creation-vs-runtime-6b9d60ecb44c/
+
 除了上述属性外，以下属性对接口类型 `I` 可用：
 
 - `type(I).interfaceId`:

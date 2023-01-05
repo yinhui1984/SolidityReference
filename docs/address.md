@@ -133,6 +133,12 @@ _addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uin
 
 
 
+> 返回的 `bytes momory result` 可以用 `abi.decode` 进行解码
+>
+> `bool ret = abi.decode(result, (bool));`
+>
+> `(bool ret, uint256 v) = abi.decode(result, (bool, uint256));`
+
 > 在大多数情况下，对于合约函数的调用，<u>不推荐</u>使用 call，因为它绕过了类型检查、函数存在性检查和参数打包,  以及 revert时不会向上冒泡传递。最好是导入合约的接口来调用其上的函数。
 
 > call比在合同实例上调用函数消耗的gas更少。所以在某些情况下，调用是优化gas的首选。
@@ -145,7 +151,7 @@ _addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uin
 
 用给定的数据发出低级别的 `DELEGATECALL`，返回是否成功的结果和数据，发送所有可用 gas，可调节。
 
-`delegatecall`用于从合约A调用合约B的一个函数，并向该函数提供合约A的上下文(存储、余额和地址)。这样做的目的是将合约B中的函数作为库代码使用。因为该函数将表现为它是合约A本身的一个函数。请看这个帖子的代码例子: https://solidity-by-example.org/delegatecall/
+`delegatecall`**用于从合约A调用合约B的一个函数，并向该函数提供合约A的上下文(存储、余额和地址)。**这样做的目的是将合约B中的函数作为库代码使用。因为该函数将表现为它是合约A本身的一个函数。请看这个帖子的代码例子: https://solidity-by-example.org/delegatecall/
 
 `delegatecall`语法与`call`语法完全相同，只是它**不能接受**`value`选项，只能接受`gas`选项。
 

@@ -29,6 +29,8 @@ desc: 当前交易
 
 
 
+> 注意: 在使用`address.delegatecall`时, `tx.origin`和`msg.sender`很可能是相同的了
+
 ### 例子
 
 ```solidity

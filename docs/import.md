@@ -3,6 +3,16 @@ key: import, as, using...for...
 desc: 导入
 ---
 
+
+
+
+
+
+
+官方文档:  https://docs.soliditylang.org/zh/v0.8.17/path-resolution.html
+
+
+
 ## 本地导入
 
 ```

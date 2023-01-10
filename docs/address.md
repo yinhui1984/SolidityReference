@@ -152,7 +152,7 @@ _addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uin
 
 用给定的数据发出低级别的 `DELEGATECALL`，返回是否成功的结果和数据，发送所有可用 gas，可调节。
 
-`delegatecall`**用于从合约A调用合约B的一个函数，并向该函数提供合约A的上下文(存储、余额和地址)。**这样做的目的是将合约B中的函数作为库代码使用。因为该函数将表现为它是合约A本身的一个函数。请看这个帖子的代码例子: https://solidity-by-example.org/delegatecall/
+`delegatecall`**用于从合约A调用合约B的一个函数，并向该函数提供合约A的上下文(context)。**这样做的目的是将合约B中的函数作为库代码使用。因为该函数将表现为它是合约A本身的一个函数。请看这个帖子的代码例子: https://solidity-by-example.org/delegatecall/
 
 >注意: 由于`delegatecal`用的是调用合约的上下文和被调用合约的算法, 所以这个时候`msg.sender`是等于`tx.origin`的
 >
@@ -167,11 +167,14 @@ _addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uin
 ```solidity
 //注意, 被调用函数的参数是放到encodeWithSignature的括号里面的
 (bool success, bytes memory data) = _contract.delegatecall(
-            abi.encodeWithSignature("setVars(uint256)", _num)
-            );
+							abi.encodeWithSignature("setVars(uint256)", _num));
 ```
 
 
+
+> `delegatecall`暴露了自己的上下文给被调用的代码, 如果你不能100%确定被调用代码的内容,则是非常危险的操作. 被调用的代码可以"以你的身份"干很多非法的事情, 比如修改状态变量等.
+>
+> 参考 https://github.com/yinhui1984/EthernautGameReferenceAnswers 中的 [第"17"个挑战](https://github.com/yinhui1984/EthernautGameReferenceAnswers/blob/main/17_Preservation.md).
 
 ## staticcall
 

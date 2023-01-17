@@ -50,6 +50,26 @@ https://docs.soliditylang.org/en/v0.8.17/types.html?highlight=delete#mapping-typ
 
 <img src="https://github.com/yinhui1984/imagehosting/blob/main/images/1672293665096381000.jpg?raw=true" alt="image" style="zoom:50%;" />
 
-### Iterable Mappings
+## Iterable Mappings
 
 https://docs.soliditylang.org/en/v0.8.17/types.html#iterable-mappings
+
+
+
+## 存储 (storage)
+
+参考:  https://programtheblockchain.com/posts/2018/03/09/understanding-ethereum-smart-contract-storage/
+
+总的说来
+
+mapping 声明的位置对应的slot内容为空
+
+根据key和slot的hash来对key对应是实际存储位置进行定位
+
+```solidity
+//伪代码
+function mapLocation(uint256 slot, uint256 key) public pure returns (uint256) {
+    return uint256(keccak256(key, slot));
+}
+```
+

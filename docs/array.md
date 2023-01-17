@@ -23,6 +23,16 @@ uint[10] public myarr2 = [9]; //myarr2[0]为9 , 其他为默认值
 
 
 
+
+
+## 存储(storage)
+
+参考这篇文章 https://programtheblockchain.com/posts/2018/03/09/understanding-ethereum-smart-contract-storage/
+
+总的说来, 固定大小的数组, 按照器声明的位置和大小,存储在固定的slot上
+
+动态大小的数组, 声明位置对应的slot存储的是数组的大小, 数据的实际存储位置的起始位置是slot编号的hash值,然后进行的连续存储.
+
 ## 操作
 
 https://docs.soliditylang.org/en/v0.8.17/types.html?highlight=array#array-members

@@ -176,6 +176,12 @@ _addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uin
 >
 > 参考 https://github.com/yinhui1984/EthernautGameReferenceAnswers 中的 [第"17"个挑战](https://github.com/yinhui1984/EthernautGameReferenceAnswers/blob/main/17_Preservation.md).
 
+
+
+> 上下文(context):  https://www.evm.codes/about#executionenv
+>
+> 包括: 代码, PC(程序计数器), 栈, 内存, 存储, calldata,  returndata
+
 ## staticcall
 
 ```

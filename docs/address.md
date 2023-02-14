@@ -78,7 +78,7 @@ desc: 地址与成员函数
 <address payable>.transfer(uint256 amount)
 ```
 
-向 [地址类型](https://docs.soliditylang.org/zh/latest/types.html#address) 发送数量为 amount 的 Wei，失败时抛出异常，发送 2300 gas 的矿工费，不可调节。
+向 [地址类型](https://docs.soliditylang.org/zh/latest/types.html#address) 发送数量为 amount 的 Wei，失败时抛出异常，发送 2300 gas 的矿工费，不可调节矿工费。
 
 ```solidity
 function sendViaTransfer(address payable _to) public payable {
@@ -93,7 +93,7 @@ function sendViaTransfer(address payable _to) public payable {
 <address payable>.send(uint256 amount) returns (bool)
 ```
 
-向 [地址类型](https://docs.soliditylang.org/zh/latest/types.html#address) 发送数量为 amount 的 Wei，失败时返回 `false` 2300 gas 的矿工费用，不可调节。
+向 [地址类型](https://docs.soliditylang.org/zh/latest/types.html#address) 发送数量为 amount 的 Wei，失败时返回 `false` 2300 gas 的矿工费用，不可调节矿工费。
 
 ```solidity
 function sendViaSend(address payable _to) public payable {
@@ -112,7 +112,7 @@ function sendViaSend(address payable _to) public payable {
 <address>.call(bytes memory) returns (bool, bytes memory)
 ```
 
-用给定的数据发出低级别的 `CALL`，返回是否成功的结果和数据，发送所有可用 gas，可调节。
+用给定的数据发出低级别的 `CALL`，返回是否成功的结果和数据，发送所有可用 gas，可调节旷工费
 
 ```solidity
 function sendViaCall(address payable _to) public payable {
@@ -150,7 +150,7 @@ _addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uin
 <address>.delegatecall(bytes memory) returns (bool, bytes memory)
 ```
 
-用给定的数据发出低级别的 `DELEGATECALL`，返回是否成功的结果和数据，发送所有可用 gas，可调节。
+用给定的数据发出低级别的 `DELEGATECALL`，返回是否成功的结果和数据，发送所有可用 gas，可调节旷工费。
 
 `delegatecall`**用于从合约A调用合约B的一个函数，并向该函数提供合约A的上下文(context)。**这样做的目的是将合约B中的函数作为库代码使用。因为该函数将表现为它是合约A本身的一个函数。请看这个帖子的代码例子: https://solidity-by-example.org/delegatecall/
 

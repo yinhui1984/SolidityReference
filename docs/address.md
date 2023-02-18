@@ -11,6 +11,15 @@ desc: 地址与成员函数
 
 
 
+## uint 与address 之间转换
+
+```solidity
+uint256 i = uint256(uint160(msg.sender));
+address a = address(uint160(uint(keccak256(abi.encodePacked(i)))));
+```
+
+
+
 ## balance
 
 `<address>.balance` （ `uint256` ）以 Wei 为单位的 [地址类型](https://docs.soliditylang.org/zh/latest/types.html#address) 的余额。
@@ -160,7 +169,7 @@ _addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uin
 
 `delegatecall`语法与`call`语法完全相同，只是它**不能接受**`value`选项，只能接受`gas`选项。
 
-`delegatecall`的一个流行且非常有用的用例是可升级合约。可升级合约使用一个代理合约，它将所有的函数调用转发给使用delegatecall的执行合约。代理合约的地址保持不变，而新的实现可以被多次部署。新实现的地址在代理合约中被更新。代理合约有完整的合约存储的状态。详细解释请查看[Openzepplin](https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies)文档。
+`delegatecall`的一个流行且非常有用的用例是可升级合约。可升级合约使用一个代理合约，它将所有的函数调用转发给使用delegatecall的执行合约。代理合约的地址保持不变，而新的实现可以被多次部署。新实现的地址在代理合约中被更新。代理合约有完整的合约存储的状态。详细解释请查看文档https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies  和  https://docs.openzeppelin.com/contracts/4.x/api/proxy 以及代码 https://github.com/OpenZeppelin/openzeppelin-contracts/tree/v4.8.1/contracts/proxy .  和博客:  https://fravoll.github.io/solidity-patterns/proxy_delegate.html
 
 
 

@@ -42,3 +42,7 @@ try xxx {
 更多的示例:
 
 https://solidity-by-example.org/try-catch/
+
+
+
+使用`try...catch` 捕获error: 参考error.md

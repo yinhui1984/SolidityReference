@@ -5,6 +5,12 @@ desc: 自定义错误
 
 
 
+https://blog.soliditylang.org/2021/04/21/custom-errors/
+
+
+
+
+
 ```solidity
 //定义
 // 格式 error ERROR_NAME(ARG1, ARG2, ... )
@@ -44,3 +50,19 @@ function domething() public {
 > ```
 >
 > 
+
+
+
+使用`try...catch` 捕获error
+
+```solidity
+try myContract.domething(){
+
+}
+catch (bytes memory err){
+	if (keccak256(abi.encodeWithSignature("InsufficientBalance(uint256,uint256)")) == keccak256(err)) {
+             
+   }
+}
+```
+

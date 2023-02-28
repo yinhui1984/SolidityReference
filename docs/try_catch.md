@@ -10,8 +10,6 @@ https://docs.soliditylang.org/zh/v0.8.17/control-structures.html#try-catch
 
 
 
-
-
 ```solidity
 try xxx {
 	 
@@ -19,8 +17,6 @@ try xxx {
 
 }
 ```
-
-
 
 > `try` 后面 (也就是上面的XXX位置)只能是
 >
@@ -39,10 +35,45 @@ try xxx {
 
 
 
+
+
+示例:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract MyContract {
+    function foo(uint256 x) external returns (bool) {
+        try this.bar(x) returns (bool success) {
+            return success;
+        } catch Error(string memory reason) {
+            // This will catch an error if the call to `bar` reverts
+            emit LogError(reason);
+            return false;
+        } catch {
+            // This will catch any other exceptions that may occur
+            emit LogError("Unknown error occurred.");
+            return false;
+        }
+    }
+
+    function bar(uint256 x) external pure returns (bool) {
+        if (x > 10) {
+            revert("x cannot be greater than 10");
+        }
+        return true;
+    }
+
+    event LogError(string reason);
+}
+
+```
+
+
+
 更多的示例:
 
 https://solidity-by-example.org/try-catch/
-
-
 
 使用`try...catch` 捕获error: 参考error.md

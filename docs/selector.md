@@ -38,3 +38,9 @@ contract FunctionSelector {
 }
 ```
 
+solidity 中如果能访问到合约或接口代码, 可以如下调用直接返回函数选择器
+
+```solidity
+bytes4 _sig = myContract.ownerOf.selector
+```
+

@@ -927,6 +927,17 @@ https://docs.uniswap.org/contracts/v2/reference/smart-contracts/router-02#remove
 
 增加流动性的反向操作: 降低流动性 并销毁一部分流动性代币
 
+> 注: 移除流动性需要销毁自己的流动性代币, 所以需要先Approve Router对自己流动性代币的操作
+>
+> ```solidity
+> myPair.approve(
+>             address(theRouter),
+>             myPair.balanceOf(address(this))
+>         );
+> ```
+>
+> 
+
 
 
 ##### removeLiquidityWithPermit  removeLiquidityETHWithPermit

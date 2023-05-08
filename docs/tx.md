@@ -41,3 +41,12 @@ desc: 当前交易
     }
 ```
 
+
+
+```solidity
+// 看到网上有很多代码使用如下判断调用方是否是合约:
+require(msg.sender == tx.origin, "Minting from smart contracts is disallowed");
+
+//不要用codesize判断调用方是否是合约,那存在漏洞
+```
+

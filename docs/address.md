@@ -191,6 +191,17 @@ _addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uin
 >
 > 包括: 代码, PC(程序计数器), 栈, 内存, 存储, calldata,  returndata
 
+
+
+> 在EOA上调用delegateCall, 什么也不会发生, 并且返回true
+>
+> ```solidity
+> (bool success, ) =EOA_addres.delegatecall(data);
+> require(success, "delegate call failed");
+> ```
+>
+> 
+
 ## staticcall
 
 ```

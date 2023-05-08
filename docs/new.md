@@ -114,7 +114,7 @@ contract C {
             ))
         )))));
 
-        D d = new D{salt: salt}(arg);
+        D d = new D{salt: salt}(arg); // 注意new的时候要带上salt参数
         require(address(d) == predictedAddress);
     }
 }

@@ -45,7 +45,7 @@ Calldata的前四个字节（即函数标识符）
 
 
 
-## 举例
+## 举例1
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -76,5 +76,13 @@ contract MyContract{
 0
 0x771602f7
 0x771602f700000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002
+```
+
+
+
+## 举例2
+
+```solidity
+require(msg.sender == tx.origin, "Minting from smart contracts is disallowed");
 ```
 

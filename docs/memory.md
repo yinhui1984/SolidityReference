@@ -5,6 +5,10 @@ desc: memory and storage
 
 
 
+# memory and storage
+
+
+
 ## 解释
 
 在Solidity编程语言中，内存和存储是用于存储变量的两种不同类型的数据位置。

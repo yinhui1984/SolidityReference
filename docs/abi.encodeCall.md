@@ -45,6 +45,16 @@ bytes memory callData = abi.encodeCall(example.add, 10, 20);
 
 变量`callData`将包含编码后的函数调用，其中包括函数名称和参数。你可以将这个字节数组传递给另一个函数，或者使用`eth.call`或`eth.sendTransaction`发送到另一个合约
 
+比如
+
+```solidity
+(bool success, bytes memory ret) = address(example).staticcall(callData);
+assertEq(success, true);
+uint sum = abi.decode(ret, (uint256));
+console2.log(sum);
+assertEq(sum, 30);
+```
+
 
 
 
@@ -55,9 +65,33 @@ https://blog.soliditylang.org/2022/03/16/encodecall-bug/
 
 ## encodeCall  encodeWithSignature   encodeWithSelector
 
-`abi.encodeCall`、`abi.encodeWithSignature` 和 `abi.encodeWithSelector` 在 Solidity 中都用于编码函数调用，但它们各有特点和使用场景。理解它们之间的关系有助于选择最适合特定需求的编码方法。
+`abi.encodeCall`、`abi.encodeWithSignature` 和 `abi.encodeWithSelector` 在 Solidity 中都用于编码函数调用
+
+比如有一个函数Add
+
+```solidity
+function Add(uint a, uint b) public pure returns (uint) {
+        return a + b;
+}
+```
+
+通过下面这三种方式
+
+```solidity
+abi.encodeCall(this.Add, (1, 2));
+abi.encodeWithSignature("Add(uint256,uint256)", 1, 2);
+abi.encodeWithSelector(this.Add.selector, 1, 2);
+```
+
+得到的结果都是一样的
+
+```
+0x7afbe4f100000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002
+```
 
 
+
+但它们各有特点和使用场景。理解它们之间的关系有助于选择最适合特定需求的编码方法。
 
 ### abi.encodeCall
 

@@ -119,17 +119,21 @@ address a = address(uint160(uint(keccak256(abi.encodePacked(i)))));
 >
 >  
 
-## transfer (不推荐)
 
-```
+
+## transfer
+
+```solidity
 <address payable>.transfer(uint256 amount)
 ```
 
-向 [地址类型](https://docs.soliditylang.org/zh/latest/types.html#address) 发送数量为 amount 的 Wei，失败时抛出异常，发送 2300 gas 的矿工费，不可调节矿工费。
+- **用途**：向指定地址发送固定数量的以太币（`amount`），单位是 Wei。
+- **行为**：如果交易失败（比如因为被调用合约的 `fallback` 函数耗尽 Gas 或抛出异常），会自动回滚整个交易。
+- **Gas 限制**：`transfer` 固定提供 2300 Gas，这足以完成基本日志操作，但不足以执行任何状态更新。
+- **安全性**：防止重入攻击的一种方法，因为被调用方无法再次调用原始合约。
 
 ```solidity
 function sendViaTransfer(address payable _to) public payable {
-  // This function is no longer recommended for sending Ether.
   _to.transfer(msg.value);
 }
 ```
@@ -140,7 +144,10 @@ function sendViaTransfer(address payable _to) public payable {
 <address payable>.send(uint256 amount) returns (bool)
 ```
 
-向 [地址类型](https://docs.soliditylang.org/zh/latest/types.html#address) 发送数量为 amount 的 Wei，失败时返回 `false` 2300 gas 的矿工费用，不可调节矿工费。
+- **用途**：与 `transfer` 类似，用于向指定地址发送以太币。
+- **行为**：如果交易失败，不会自动回滚，而是返回 `false`。
+- **Gas 限制**：与 `transfer` 相同，提供 2300 Gas。
+- **安全性**：需要手动检查返回值来确认交易是否成功。
 
 ```solidity
 function sendViaSend(address payable _to) public payable {
@@ -159,12 +166,16 @@ function sendViaSend(address payable _to) public payable {
 <address>.call(bytes memory) returns (bool, bytes memory)
 ```
 
-用给定的数据发出低级别的 `CALL`，返回是否成功的结果和数据，发送所有可用 gas，可调节旷工费
+- **用途**：用于发起通用的函数调用，可以发送以太币和/或调用合约的函数。(也就是可以纯转账,也可以调用函数)
+- **行为**：返回一个表示成功或失败的布尔值和包含返回数据的字节。
+- **Gas 限制**：可以发送所有可用 Gas，或通过 `{value: x, gas: y}` 指定。
+- **安全性**：需要谨慎使用，特别是当调用未知合约时。它允许更多复杂的交互，但也可能引入安全风险。
 
 ```solidity
 function sendViaCall(address payable _to) public payable {
   // Call returns a boolean value indicating success or failure.
   // This is the current recommended method to use.
+  // calldata为空, 纯转账
   (bool sent, bytes memory data) = _to.call{value: msg.value}("");
   require(sent, "Failed to send Ether");
 }
@@ -189,7 +200,7 @@ _addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uin
 
 > 在大多数情况下，对于合约函数的调用，<u>不推荐</u>使用 call，因为它绕过了类型检查、函数存在性检查和参数打包,  以及 revert时不会向上冒泡传递。最好是导入合约的接口来调用其上的函数。
 
-> call比在合同实例上调用函数消耗的gas更少。所以在某些情况下，调用是优化gas的首选。
+> call比在合约实例上调用函数消耗的gas更少。所以在某些情况下，调用是优化gas的首选。
 
 ## delegatecall
 
@@ -219,7 +230,7 @@ _addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uin
 
 
 
-> `delegatecall`暴露了自己的上下文给被调用的代码, 如果你不能100%确定被调用代码的内容,则是非常危险的操作. 被调用的代码可以"以你的身份"干很多非法的事情, 比如修改状态变量等.
+> `delegatecall`  <u>暴露了自己的上下文给被调用的代码</u>, 如果你不能100%确定被调用代码的内容,则是非常危险的操作. 被调用的代码可以"以你的身份"干很多非法的事情, 比如修改状态变量等.
 >
 > 参考 https://github.com/yinhui1984/EthernautGameReferenceAnswers 中的 [第"17"个挑战](https://github.com/yinhui1984/EthernautGameReferenceAnswers/blob/main/17_Preservation.md).
 
@@ -246,7 +257,55 @@ _addr.call{value: 1 ether, gas: 1000000}(abi.encodeWithSignature("myFunction(uin
 <address>.staticcall(bytes memory) returns (bool, bytes memory)
 ```
 
-用给定的数据发出低级别的 `STATICCALL`，返回是否成功的结果和数据，发送所有可用 gas，可调节。
+- **用途**：用于执行只读的合约调用。
+- **行为**：与 `call` 相似，但保证不会修改状态。
+- **适用场景**：在需要保证不改变任何状态的情况下查询合约信息时使用。
 
  `staticcall` 与 `call `完全一样，唯一的区别是它不能修改被调用的合约的状态。
 
+
+
+> - **`transfer` 和 `send`**：更适用于简单的以太币转账，提供了防止重入的基本安全性。
+> - **`call`**：适用于更复杂的交互，包括发送以太币和执行合约函数，但需要谨慎使用。
+> - **`delegatecall`**：用于高级模式，如合约升级，但风险较高。
+> - **`staticcall`**：适用于只读调用，保证不改变状态。
+
+## 资金流向
+
+合约A存在如下函数：  
+
+```solidity
+contract A {
+    function SendEther(address payable to) public payable {
+        to.transfer(msg.value);
+    }
+}
+```
+
+当合约B调用合约A的SendEther函数中，以太币是由谁发送给谁
+
+```solidity
+contract B{
+	function XXX() public {
+	  // ...
+		_address_of_a.SendEther{value: 1 ether}(addr);
+	}
+}
+```
+
+### 流程
+
+1. **发起交易**：
+   - 调用者（可能是合约B或其调用者）发起一笔包含以太币的交易，调用合约A的 `SendEther` 函数。
+2. **传递以太币**：
+   - 交易中附带的以太币（`msg.value`）首先被发送到合约A。
+3. **执行 `SendEther`**：
+   - 合约A中的 `SendEther` 函数被执行。该函数接收一个参数 `address payable to`，这是以太币最终要发送到的地址。
+4. **转账操作**：
+   - 在 `SendEther` 函数内部，调用 `to.transfer(msg.value)` 将收到的以太币转发到地址 `to`。
+
+### 以太币的流向
+
+- 以太币最初由调用者（合约B或其调用者）发送给合约A。
+- 随后，合约A将这些以太币发送到 `SendEther` 函数指定的 `to` 地址。
+- 在这个过程中，合约A仅作为中间人，接收并立即将以太币转发到另一个地址

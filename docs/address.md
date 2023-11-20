@@ -9,9 +9,23 @@ desc: 地址与成员函数
 
 地址类型成员: https://docs.soliditylang.org/zh/latest/units-and-global-variables.html#address-related
 
+地址类型有两种基本相同的类型：
 
+- `address`: 保存一个20字节的值（一个以太坊地址的大小）。
 
-## uint 与address 之间转换
+- `address payable`: 与 `address` 类型相同，但有额外的方法 `transfer` 和 `send`。
+  允许从 `address payable` 到 `address` 的隐式转换， 而从 `address` 到 `address payable` 的转换必须通过 `payable(<address>)` 来明确。
+
+  ```solidity
+  address payable ap = payable(msg.sender);
+  address ad = ap;
+  ```
+
+  
+
+对于 `uint160`、整数、 `bytes20` 和合约类型，允许对 `address` 进行明确的转换和输出。
+
+uint 与address 之间转换
 
 ```solidity
 uint256 i = uint256(uint160(msg.sender));
@@ -19,6 +33,32 @@ address a = address(uint160(uint(keccak256(abi.encodePacked(i)))));
 ```
 
 
+
+对于合约类型，只有在合约可以接收以太的情况下才允许这种转换，也就是说， 合约要么有一个 [receive](https://docs.soliditylang.org/zh/latest/contracts.html#receive-ether-function) 函数，要么有一个 payable 类型的 fallback 的函数。 请注意， `payable(0)` 是有效的，是这个规则的例外。
+
+
+
+## 关于大小写
+
+`address` 类型本身是**不区分**大小写的。以太坊地址可以表示为 40 个十六进制字符的字符串，通常在这个字符串中字母可以是大写或小写，或者两者的混合。地址的大小写形式不影响其代表的实际地址。
+
+### 为什么存在大小写混写
+
+大小写混写形式主要是为了遵循 ERC-55 标准，这是一种通过大小写字母的使用来增加地址的校验信息的方法。这种校验机制可以帮助检测地址输入错误，但它并不改变地址本身的有效性
+
+> ERC-55:
+>
+> https://github.com/ethereum/ercs/blob/master/ERCS/erc-55.md
+>
+> 为了生成符合 ERC-55 的大小写混写地址，可以按照以下步骤：
+>
+> 1. 将地址转换为小写形式，并去除前缀 `0x`。
+> 2. 对该小写地址字符串进行 Keccak-256 哈希运算，得到一个新的哈希值。
+> 3. 遍历原始地址的每个字符：
+>    - 如果地址中的字符是一个数字（0-9），保持不变。
+>    - 如果地址中的字符是一个字母（a-f），检查哈希值在相同位置的字符：
+>      - 如果哈希值的字符在十六进制中大于或等于 8（即高四位为 1），则将原始地址中的字符转换为大写。
+>      - 否则，保持为小写
 
 ## balance
 
@@ -33,8 +73,6 @@ address a = address(uint160(uint(keccak256(abi.encodePacked(i)))));
         emit EtherWithdraw(owner, balance);
     }
 ```
-
-
 
 ## code
 

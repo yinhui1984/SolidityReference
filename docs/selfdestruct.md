@@ -11,9 +11,14 @@ selfdestruct(address payable recipient)
 
 合约自毁, 并将其资金发送到给定的地址.
 
-When a contract is destroyed using `selfdestruct`, its **code, data and storage** are all removed from the Ethereum network. Any remaining ether held by the contract is sent to the designated address
+使用 "自毁 "销毁合约时，其**代码、数据和存储**都会从以太坊网络中删除。合约持有的任何剩余以太币都会被发送到指定地址。
 
-It's important to note that once a contract is destroyed, it cannot be used again. Additionally, any contracts that have a reference to the destroyed contract will no longer be able to interact with it, and any ether held by the destroyed contract will be irretrievable. Therefore, the `selfdestruct` function should be used with caution and only when absolutely necessary.
+值得注意的是，合约一旦销毁，就不能再使用。此外，任何对已销毁合约有引用的合约都将无法再与之交互，已销毁合约持有的以太币也将无法收回。因此，只有在绝对必要的情况下，才应谨慎使用 "自毁 "函数。
+
+ 注意， `selfdestruct` 有一些从EVM继承的特殊性：
+
+- 接收合约的接收函数不会被执行。
+- 合约只有在交易结束时才真正被销毁， 任何一个 `revert` 可能会 "恢复" 销毁。
 
 > 将自毁合约地址上的资金发送到给定的地址时, 这个地址可以是外部账户地址, 也可以是合约地址.
 >
@@ -22,6 +27,12 @@ It's important to note that once a contract is destroyed, it cannot be used agai
 > 参考:
 >
 > https://github.com/yinhui1984/EthernautGameReferenceAnswers/blob/main/08_Force.md
+
+>"selfdestruct" deprecated in Solidity 0.8.18
+>
+>"selfdestruct" has been deprecated. The underlying opcode will eventually undergo breaking changes, and its use is not recommended.
+>
+>到目前为止,只会收到一个编译警告, 但仍然可用
 
 
 

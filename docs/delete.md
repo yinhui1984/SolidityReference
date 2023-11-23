@@ -62,6 +62,7 @@ https://docs.soliditylang.org/zh/latest/types.html#delete
 - 对于映射，`delete a[x]` 将删除键 `x` 对应的值，但 `delete a` 对映射本身没有影响。
 
   **示例**:
+  
   ```solidity
   mapping(address => uint) balances;
   delete balances[userAddress]; // 删除 userAddress 的余额

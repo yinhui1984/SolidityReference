@@ -7,12 +7,107 @@ desc: 重置
 
 
 
-https://docs.soliditylang.org/en/v0.8.17/types.html#delete
+https://docs.soliditylang.org/zh/latest/types.html#delete
 
-delete a将类型的初始值分配给a，即对于整数，它相当于a = 0，但它也可以用在数组上，它分配给一个长度为0的动态数组或一个相同长度的静态数组，所有元素都设置为初始值。 delete a[x] 删除数组中索引为x的项，并保留所有其他元素和数组的长度不动。这特别意味着它在数组中留下一个缺口。如果你打算删除项目，映射可能是一个更好的选择。
+在Solidity中，`delete` 关键字的行为取决于它作用的数据类型。
 
-对于结构体来说，它分配了一个所有成员都被重置的结构体。换句话说，删除a后，a的值与a在没有赋值的情况下声明的值是一样的，但有以下注意点。
+### 删除变量
 
-删除对映射没有影响（因为映射的键可能是任意的，通常是未知的）。因此，如果你删除一个结构，它将重置所有不是映射的成员，同时也会递归到这些成员，除非它们是映射。然而，单个键和它们所映射的内容可以被删除。如果a是一个映射，那么delete a[x]将删除存储在x的值。
+- **基本类型**：对于基本类型（如整数），`delete a` 将变量 `a` 重置为其类型的初始值。例如，对于整数，这相当于 `a = 0`。
+  
+  **示例**:
+  ```solidity
+  uint a = 5;
+  delete a; // 现在 a == 0
+  ```
 
-值得注意的是，删除a的行为就像对a的赋值，也就是说，它在a中存储了一个新的对象，当a是引用变量时，这种区别是明显的。它将只重置a本身，而不是它之前引用的值。
+- **数组**：对于数组，`delete a` 行为不同，具体取决于数组是动态数组还是静态数组。
+  - 对于**动态数组**，它将数组长度设为 `0`，但不会改变已分配的内存。
+  - 对于**静态数组**，它将数组的每个元素重置为类型的初始值，但数组长度保持不变。
+  
+  **示例**:
+  ```solidity
+  uint[] dynamicArray;
+  uint[5] staticArray;
+  delete dynamicArray; // 动态数组现在长度为 0
+  delete staticArray;  // 静态数组的每个元素现在都是 0，长度仍为 5
+  ```
+
+### 删除数组元素
+
+- 使用 `delete a[x]` 可以删除数组 `a` 中索引为 `x` 的元素。这会将元素重置为其类型的初始值，但不会改变数组的长度。
+
+  **示例**:
+  ```solidity
+  uint[] numbers = [1, 2, 3];
+  delete numbers[1]; // 数组现在是 [1, 0, 3]
+  ```
+
+### 结构体
+
+- 对于结构体，`delete a` 将结构体中的所有属性重置为初始值。如果结构体包含映射，映射成员不受影响。
+
+  **示例**:
+  ```solidity
+  struct MyStruct {
+      uint num;
+      mapping(address => uint) map;
+  }
+  MyStruct data;
+  delete data; // data.num 被重置为 0，data.map 不受影响
+  ```
+
+### 映射
+
+- 对于映射，`delete a[x]` 将删除键 `x` 对应的值，但 `delete a` 对映射本身没有影响。
+
+  **示例**:
+  ```solidity
+  mapping(address => uint) balances;
+  delete balances[userAddress]; // 删除 userAddress 的余额
+  ```
+
+### 引用变量
+
+- 对于引用变量（如结构体或数组的引用），`delete a` 只会重置引用本身，而不影响它所指向的数据。
+
+### 总结
+
+`delete` 在Solidity中的行为实际上是对变量进行赋值操作，即将新的默认值存储在变量中。这在处理引用类型时尤其重要，因为 `delete` 只重置引用，而不改变引用指向的数据。
+
+
+
+> 在Solidity中，您只能删除存储引用指向的数据（如 `delete dataArray;`），而不能删除存储引用本身
+
+比如下面的`delete y`是非法的
+
+```solidity
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity >=0.4.0 <0.9.0;
+
+contract DeleteExample {
+    uint data;
+    uint[] dataArray;
+
+    function f() public {
+        uint x = data;
+        delete x; // 将 x 设为 0，并不影响data变量
+        delete data; // 将 data 设为 0，并不影响 x
+        uint[] storage y = dataArray;
+        delete dataArray; // 将 dataArray.length 设为 0，但由于 uint[] 是一个复杂的对象，
+        // y 也将受到影响，它是一个存储位置是 storage 的对象的别名。
+        // 另一方面："delete y" 是非法的，引用了 storage 对象的局部变量只能由已有的 storage 对象赋值。
+        assert(y.length == 0);
+    }
+}
+```
+
+在上面的例子中, 
+
+`uint[] storage y = dataArray;` 这行代码创建了一个指向 `dataArray` 的存储（`storage`）指针。在Solidity中，`storage`引用是路径依赖的，它们不是独立的数据副本，而是直接指向存储在区块链上的数据。因此，`y` 实际上是 `dataArray` 的一个别名（或引用），它们指向相同的数据。
+
+当执行 `delete dataArray;` 时，它将 `dataArray` 的长度设置为0。由于 `y` 是 `dataArray` 的别名，这也影响了 `y`。在这种情况下，`y` 依然指向 `dataArray`，但是由于 `dataArray` 现在是一个空数组，`y` 的长度也为0。
+
+`delete y;` 被认为是非法的，因为 `y` 是一个指向存储（`storage`）的引用，而不是一个独立的变量。在Solidity中，您不能删除存储引用本身，只能删除存储引用所指向的内容。由于 `y` 只是 `dataArray` 的一个别名，删除 `y` 就相当于尝试删除 `dataArray` 的引用本身，而不是它的内容。这是不允许的，因为 `storage` 引用应该总是指向一个有效的存储位置。
+
+简而言之，`delete y;` 是非法的，因为它尝试删除一个 `storage` 引用，而不是它所指向的数据。在Solidity中，您只能删除存储引用指向的数据（如 `delete dataArray;`），而不能删除存储引用本身。

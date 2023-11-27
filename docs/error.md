@@ -3,11 +3,11 @@ key: error
 desc: 自定义错误
 ---
 
-
+从 v0.8.4 开始
 
 https://blog.soliditylang.org/2021/04/21/custom-errors/
 
-
+`error` 和 `revert` 配合使用
 
 
 

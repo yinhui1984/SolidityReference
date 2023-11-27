@@ -160,6 +160,84 @@ function sendViaSend(address payable _to) public payable {
 
 
 
+> 关于2300 Gas
+>
+> 2300gas 能执行的操作很少,  比如使用transfer或call函数给合约发送ethers时,如在fallback函数或receive函数中有一些稍稍费gas的逻辑, 都会导致"EvmError: OutOfGas". 当然这也就是防止了重入
+>
+> 比如:
+>
+> ```solidity
+> // SPDX-License-Identifier: SEE LICENSE IN LICENSE
+> pragma solidity ^0.8.11;
+> 
+> contract FallbackDemo{
+>     string public lastCalledFuncationName;
+> 
+>     function LastCalledFuncationName() public view returns (string memory) {
+>         return lastCalledFuncationName;
+>     }
+> 
+>     fallback() external payable {
+>         // 如果使用transfer和send进行转账，会导致fallback函数失败
+>         // 原因： transfer和send只有2300gas，不足以执行这里的字段赋值操作
+>         lastCalledFuncationName = "fallback";
+>     }
+> 
+>     function Hello() public payable {
+>         lastCalledFuncationName = "Hello";
+>     }
+> }
+> 
+> //那么:
+> // SPDX-License-Identifier: SEE LICENSE IN LICENSE
+> pragma solidity ^0.8.11;
+> 
+> 
+> import "forge-std/Test.sol";
+> 
+> import "../src/receivce_fallback_demo.sol";
+> 
+> 
+> contract FallbackDemoTest is Test {
+>     FallbackDemo fbd;
+> 
+>     function setUp() public {
+>         vm.createSelectFork("theNet");
+> 
+>         fbd = new FallbackDemo();
+>         vm.deal(address(this), 100 ether);
+>     }
+> 
+>     function test1() public {
+>         fbd.Hello();
+>         console2.logString(fbd.LastCalledFuncationName());
+>         assertTrue(keccak256(abi.encodePacked(fbd.LastCalledFuncationName())) == keccak256(abi.encodePacked("Hello")));
+>     }
+> 
+> 		//失败
+>     function testFail1() public{
+>         address payable addr = payable(fbd);
+>         addr.transfer(1 ether);
+>     }
+> 
+> 		//失败
+>     function testFail2() public{
+>         address payable addr = payable(fbd);
+>         addr.send(1 ether);
+>     }
+> 		
+> 		//成功
+>     function  test3() public{
+>         address payable addr = payable(fbd);
+>         addr.call{value: 1 ether}("");
+>         console2.logString(fbd.LastCalledFuncationName());
+>         assertTrue(keccak256(abi.encodePacked(fbd.LastCalledFuncationName())) == keccak256(abi.encodePacked("fallback")));
+>     }
+> }
+> ```
+>
+> 
+
 ## call
 
 ```

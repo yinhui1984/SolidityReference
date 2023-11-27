@@ -31,8 +31,13 @@ fallback(bytes calldata data) external payable returns (bytes memory) {
 
 
 
+> 详细信息, 参考 receive.md
+
+
+
 更多的,参考这里:
 
  https://solidity-by-example.org/fallback/
 
 https://yinhui1984.github.io/solidity_fallback_receive_function/
+

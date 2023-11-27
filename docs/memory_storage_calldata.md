@@ -1,11 +1,11 @@
 ---
-key: memory, storage
-desc: memory and storage
+key: memory, storage, calldata
+desc: memory storage and calldata
 ---
 
 
 
-# memory and storage
+## memory and storage
 
 
 
@@ -58,6 +58,54 @@ contract MyContract {
         setData(address(this), 0, "haha");
     }
 
+}
+
+```
+
+
+
+## memory 与 calldata
+
+在Solidity中，`memory` 和 `calldata` 是两种数据存储位置，它们在用法和特性上有以下主要区别：
+
+1. **生命周期**：
+   - `memory`：仅在函数执行期间存在。每次函数调用时，`memory` 数据是临时的，调用结束后被清除。
+   - `calldata`：专门用于存储函数的外部调用参数。它是不可修改的，并且仅在外部函数调用的上下文中存在。
+
+2. **可变性**：
+   - `memory`：数据可变，可以在函数执行期间修改。
+   - `calldata`：数据不可变，一旦设定就不能被更改。
+
+3. **Gas成本**：
+   - `memory`：相比于 `calldata`，对 `memory` 的使用通常会消耗更多的Gas，特别是当数据被频繁修改时。
+   - `calldata`：用于读取输入参数，通常比 `memory` 更节省Gas，因为它是只读的并且直接从交易数据中获取。
+
+4. **使用场景**：
+   - `memory`：适用于需要修改或临时存储数据的场景。
+   - `calldata`：适用于存储不需要修改的函数参数，特别是在处理外部调用时。
+
+```solidity
+pragma solidity ^0.8.0;
+
+contract Example {
+
+    // 使用 memory
+    function usingMemory(uint[] memory data) public pure returns (uint) {
+        uint result = 0;
+        for (uint i = 0; i < data.length; i++) {
+            result += data[i]; // 在内存中修改数据
+        }
+        return result;
+    }
+
+    // 使用 calldata
+    function usingCalldata(uint[] calldata data) external pure returns (uint) {
+        uint result = 0;
+        for (uint i = 0; i < data.length; i++) {
+            result += data[i]; // 直接读取不可变的calldata
+        }
+        return result;
+    }
 }
 
 ```

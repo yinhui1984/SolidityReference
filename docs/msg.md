@@ -23,11 +23,95 @@ https://yinhui1984.github.io/solidity_tx_origin_msg_sender/
 
 完整的调用数据，它是一个不可修改的、非持久的区域，函数参数存储在该区域中，其行为主要类似于内存
 
+其中包含被调用函数的签名,参数值以及发送的value等
+
+```solidity
+// SPDX-License-Identifier: SEE LICENSE IN LICENSE
+pragma solidity ^0.8.11;
+
+
+contract MsgDemo {
+
+    function GetMsgData() public payable  returns (bytes memory){
+        return msg.data;
+    }
+
+    function GetMsgData2(int256 i) public payable  returns (bytes memory){
+        return msg.data;
+    }
+
+
+    receive() external payable {}
+}
+```
+
+```solidity
+// SPDX-License-Identifier: SEE LICENSE IN LICENSE
+pragma solidity ^0.8.11;
+
+import "forge-std/Test.sol";
+import "../src/msgdemo.sol";
+
+contract MsgDemoTest is Test {
+    MsgDemo md;
+
+    function setUp() public {
+        vm.createSelectFork("theNet");
+        md = new MsgDemo();
+    }
+
+    function testGetMsgData() public {
+        bytes memory data = md.GetMsgData();
+        console2.logBytes(data);
+        bytes memory sig = abi.encodeWithSignature("GetMsgData()");
+        console2.logBytes(sig);
+        assertTrue(keccak256(data) == keccak256(sig));
+
+        vm.deal(address(this), 100);
+        (bool ok, bytes memory data2) = (address(md)).call{value:100, gas:50000 }(abi.encodeWithSignature("GetMsgData()"));
+        assertTrue(ok);
+        console2.logBytes(data2);
+    }
+
+    function testGetMsgData2() public{
+        bytes memory data = md.GetMsgData2(1);
+        console2.logBytes(data);
+        bytes memory sig = abi.encodeWithSignature("GetMsgData2(int256)", 1);
+        console2.logBytes(sig);
+        assertTrue(keccak256(data) == keccak256(sig));
+
+        vm.deal(address(this), 100);
+        (bool ok, bytes memory data2) = (address(md)).call{value:100, gas:50000 }(abi.encodeWithSignature("GetMsgData2(int256)", 1));
+        assertTrue(ok);
+        console2.logBytes(data2);
+    }
+}
+
+```
+
+输出
+
+```
+[PASS] testGetMsgData() (gas: 21949)
+Logs:
+  0x72538ea6
+  0x72538ea6
+  0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000472538ea600000000000000000000000000000000000000000000000000000000
+
+[PASS] testGetMsgData2() (gas: 22662)
+Logs:
+  0x6bc5ecff0000000000000000000000000000000000000000000000000000000000000001
+  0x6bc5ecff0000000000000000000000000000000000000000000000000000000000000001
+  0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000246bc5ecff000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000
+```
+
+
+
 ### msg.sig
 
 数据类型`bytes4`
 
-Calldata的前四个字节（即函数标识符）
+Calldata的前四个字节（即被调用函数的标识符）
 
 ### msg.value
 
@@ -35,7 +119,7 @@ Calldata的前四个字节（即函数标识符）
 
 随消息发送的 wei 的数量
 
-
+> 注: 函数要能接受以太币, 需要函数声明为payable, 并且合约要能接受以太币则需要有receive或fallback函数, 否则会evm revert 
 
 ### msg.gas (弃用)
 

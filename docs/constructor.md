@@ -4,6 +4,7 @@ desc: 合约构造器 与 继承
 ---
 
 ## 构造器
+
 ```solidity
 contract X {
     string public name;

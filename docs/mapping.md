@@ -127,4 +127,4 @@ function mapLocation(uint256 slot, uint256 key) public pure returns (uint256) {
 }
 ```
 
-更多的, 参考 storage.md
+更多的, 参考 slot.md

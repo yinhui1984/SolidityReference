@@ -136,7 +136,7 @@ assembly {
   // (2) forward call to logic contract
   // _impl is the address of current implemention 
   let result := delegatecall(gas, _impl, ptr, calldatasize, 0, 0)
-  let size := returndatasize
+  let size := returndatasize()
 
   // (3) retrieve return data
   returndatacopy(ptr, 0, size)
@@ -158,7 +158,9 @@ assembly {
 > 状态变量是存储在代理中的, 可升级合约值提供逻辑, 这是因为代理通过delegatecall调用的逻辑合约
 > 
 
-
+>在代理模式（Proxy Pattern）中，逻辑合约类似于库（Library），主要负责定义算法和逻辑，而不直接存储状态或持有资产（如以太币）。所有的状态数据和以太币都存储在代理合约中。这种设计模式允许逻辑合约被升级，而不影响现有的状态或资产。
+>
+>逻辑合约和代理合约之间的存储布局必须保持一致。这是因为虽然逻辑合约的代码是在代理合约的上下文中执行的，但所有状态变量实际上是存储在代理合约中的。
 
 ### 存储逻辑合约的地址
 
@@ -350,7 +352,7 @@ function() external payable {
         let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)
         calldatacopy(0x0, 0x0, calldatasize)
         let success := delegatecall(sub(gas, 10000), contractLogic, 0x0, calldatasize, 0, 0)
-        let retSz := returndatasize
+        let retSz := returndatasize()
         returndatacopy(0, 0, retSz)
         switch success
         case 0 {

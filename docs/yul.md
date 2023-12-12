@@ -1259,3 +1259,143 @@ contract GasExample {
 
 ## codesize()
 
+返回**当前**合约/执行环境的代码大小(字节)
+
+由于是返回自己的代码大小,而不是去获取别人的,所以我的理解是此值永不会为0, 并且在creation time调用和run time调用该函数返回的结果是不一样的,前者包含了creation code
+
+```solidity
+contract demoContractForCodeSize {
+
+    uint256 public codeSizeCallInConstructor ;
+    constructor() {
+        codeSizeCallInConstructor = GetCodeSize();
+    }
+
+    function GetCodeSize() public pure returns (uint256) {
+        uint256 result;
+        assembly {
+            result := codesize()
+        }
+        return result;
+    }
+}
+
+contract YulDemoContract {
+    function CodeSize() public  returns (uint256, uint256) {
+        uint256 s1;
+        uint256 s2;
+
+        demoContractForCodeSize d = new demoContractForCodeSize();
+        s1 = d.codeSizeCallInConstructor();
+        s2 = d.GetCodeSize();
+
+        return (s1, s2);
+    }
+ }
+```
+
+```solidity
+    function testCodeSize() public{
+        (uint256 result1, uint256 result2) = demo.CodeSize();
+        console2.logUint(result1);
+        console2.logUint(result2);
+    }
+```
+
+```
+[PASS] testCodeSize() (gas: 111391)
+Logs:
+  297
+  228
+```
+
+
+
+## extcodesize(a)
+
+返回地址`a`的代码大小(字节)
+
+如果地址`a`是外部账户, 返回 `0`
+
+如果地址`a`是合约,  但合约的代码还没有被部署完成, 则返回`0`
+
+如果地址`a`是合约,  并且合约的代码被部署完成, 则返回实际运行时代码大小
+
+```solidity
+contract demoContractForExtcodesize {
+uint256 public extCodeSizeCallInConstructor ;
+    constructor() {
+        extCodeSizeCallInConstructor = GetExtCodeSize();
+    }
+    function GetExtCodeSize() public view returns (uint256) {
+        uint256 result;
+        address addr = address(this);
+        assembly {
+            result := extcodesize(addr)
+        }
+        return result;
+    }
+}
+
+
+contract YulDemoContract {
+    function ExtCodeSize() public  returns (uint256, uint256) {
+       uint256 s1;
+         uint256 s2;
+         demoContractForExtcodesize d = new demoContractForExtcodesize();
+         s1 = d.extCodeSizeCallInConstructor();
+         s2 = d.GetExtCodeSize();
+        return (s1, s2);
+    }
+ }
+```
+
+```solidity
+    function testExtCodeSize() public{
+        (uint256 result1, uint256 result2) = demo.ExtCodeSize();
+        console2.logUint(result1);
+        console2.logUint(result2);
+    }
+```
+
+输出
+
+```
+[PASS] testExtCodeSize() (gas: 93138)
+Logs:
+  0
+  235
+```
+
+> 所以使用codesize判断一个地址是否是合约还是EOA时不靠谱的, 使用
+>
+> ```solidity
+> require(msg.sender == tx.origin, "Minting from smart contracts is disallowed");
+> ```
+
+
+
+## codecopy(t, f, s)
+
+用于复制智能合约自己的代码到内存
+
+1. **t (Target)**: 这是目标内存地址，表示代码将被复制到哪里。在EVM中，内存是线性的，并且以字节为单位寻址。这个参数指定了内存中的起始位置，代码将从这里开始复制。
+2. **f (From)**: 这是代码的起始位置。它指的是当前执行的合约代码中的一个位置，从这个位置开始读取代码。
+3. **s (Size)**: 这是要复制的代码的字节大小。这个参数指定了从源代码中复制多少字节到目标内存位置。
+
+
+
+### extcodecopy(a, t, f, s)
+
+类似于 `codecopy(t, f, s)`, 只不过代码来自于地址`a`
+
+
+
+>不要试图通过克隆合约的代码并利用create函数来创建合约的副本, 上面两个函数所指的代码都是合约的运行时代码,而create函数需要的是创建时代码
+>
+>而应该使用 ERC-1167: https://eips.ethereum.org/EIPS/eip-1167
+
+
+
+## returndatasize()
+

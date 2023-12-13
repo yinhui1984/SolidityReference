@@ -1385,7 +1385,7 @@ Logs:
 
 
 
-### extcodecopy(a, t, f, s)
+## extcodecopy(a, t, f, s)
 
 类似于 `codecopy(t, f, s)`, 只不过代码来自于地址`a`
 
@@ -1397,5 +1397,81 @@ Logs:
 
 
 
+## extcodehash(a)
+
+地址a的代码哈希值
+
 ## returndatasize()
+
+用于获取外部函数调用（例如，通过 `call`、`delegatecall`、`staticcall` 等）返回的数据的字节大小
+
+
+
+## returndatacopy(t, f, s)
+
+用于将外部函数调用（例如，通过 `call`、`delegatecall`、`staticcall` 等）返回的数据拷贝到内存
+
+1. **t (Target)**: 目标内存的起始位置，即将数据复制到内存的哪个位置。
+2. **f (From)**: 返回数据缓冲区中的起始位置，通常为0，表示从缓冲区的开始复制。
+3. **s (Size)**: 要复制的字节数。
+
+```solidity
+contract SimpleContract {
+    uint256 private value;
+
+    function getValue() public view returns (uint256) {
+        return value;
+    }
+
+    function setValue(uint256 v) public {
+        value = v;
+    }
+}
+
+contract YulDemoContract {
+    function CallData(
+        address addr,
+        bytes memory data
+    ) public returns (bytes memory) {
+        bytes memory result;
+        // 演示目的，不使用call的返回值，而通过下面获取返回值
+        (bool ok, ) = addr.call(data);
+        require(ok, "call failed");
+
+        assembly {
+            // 外部调用返回的数据大小,也就是上面的call返回值的长度
+            let size := returndatasize()
+            // 读取空闲指针位置
+            result := mload(0x40)
+            // 更新空闲指针位置。以便为返回数据分配足够的空间
+            // add(size, 0x20): 首先，将返回数据的大小（size）与0x20（即32字节，这是EVM中单个存储槽的大小）相加。这是因为动态字节数组在内存中的布局是首先存储数组的长度（占用32字节），紧接着是数组的数据。
+            // add(add(size, 0x20), 0x1f): 然后，将上一步的结果与0x1f（即31）相加。这实际上是为了计算接下来最近的32字节边界。由于Solidity的内存是以32字节为单位对齐的，这一步确保分配的内存符合这一要求。
+            // and(add(add(size, 0x20), 0x1f), not(0x1f)): 接下来，使用and操作符和not(0x1f)（即取0x1f的位反）进行位操作。这实际上是将上一步的结果向下舍入到最接近的32的倍数。这是通过掩盖掉数值的最后五位（二进制中的31）来实现的，从而确保结果是32的倍数。
+            // add(result, ...): 最后，将这个对齐后的大小值加到当前的空闲内存指针result上。这个操作更新了空闲内存指针，指向足够容纳返回数据（包括其长度）的内存区域的末尾。
+            mstore(
+                0x40,
+                add(result, and(add(add(size, 0x20), 0x1f), not(0x1f)))
+            )
+            // 将返回数据的大小存储到返回数据的开头32个字节中
+            mstore(result, size)
+            // 将返回数据复制到返回数据的开头32个字节之后的位置
+            returndatacopy(add(result, 0x20), 0, size)
+        }
+
+        return result;
+ }
+```
+
+```solidity
+    function testCallData() public{
+
+         bytes memory data = abi.encodeWithSignature("setValue(uint256)", 100);
+         demo.CallData(address(simple), data);
+
+        data = abi.encodeWithSignature("getValue()");
+        bytes memory result = demo.CallData(address(simple), data);
+        uint256 v = abi.decode(result, (uint256));
+        assertTrue(v==100, "result should be 100");
+    }
+```
 

@@ -1475,3 +1475,81 @@ contract YulDemoContract {
     }
 ```
 
+
+
+## create(v, p, n)  create2(v, p, n, s)
+
+参考 new.md
+
+
+
+## call(g, a, v, in, insize, out, outsize)
+
+函数调用
+
+1. **g (Gas)**: 这是为这次调用分配的 gas 数量。在EVM中，每个操作都需要一定量的 gas 来执行，包括合约调用。提供足够的 gas 是确保调用成功的关键。
+2. **a (Address)**: 被调用的合约地址。
+3. **v (Value)**: 要发送的以太币数量，以wei为单位。如果你不想发送以太币，这个值应该是0。
+4. **in (Input Data Location)**: 输入数据在内存中的起始位置。这些数据通常是被调用合约函数的编码参数。
+5. **insize (Input Data Size)**: 输入数据的大小，以字节为单位。
+6. **out (Output Data Location)**: 输出数据在内存中的存放位置。这是调用完成后返回数据将被存放的地方。
+7. **outsize (Output Data Size)**: 预期的返回数据的大小，以字节为单位。
+
+> 被调用函数签名和函数参数是如何传递的?
+>
+> 在`in`和`insize`指定的内存区域, 按照abi编码规范进行的布局, 具体而言就是前4个字节是被调用函数的selector, 然后是参数依次被编码, 这和solidity中普通的calldata 是一样的
+
+```solidity
+contract SimpleContract {
+    uint256 private value;
+
+    function getValue() public view returns (uint256) {
+        return value;
+    }
+
+    function setValue(uint256 v) public {
+        value = v;
+    }
+}
+```
+
+```solidity
+    function testCall() public {
+        address addr = address(simple);
+        bytes4 selector = bytes4(keccak256("setValue(uint256)"));
+        assembly {
+            let ptr := mload(0x40)
+            mstore(ptr, selector) // 先放置函数选择器
+            mstore(add(ptr, 0x4), 888) // 紧接着是参数
+            let success := call(
+                gas(), // gas
+                addr, // to
+                0, // value
+                ptr, // input
+                0x24, // input size
+                ptr, // output
+                0 // output size
+            )
+        }
+
+        uint256 result; // = simple.getValue();
+        selector = bytes4(keccak256("getValue()"));
+        assembly {
+            let ptr := mload(0x40)
+            mstore(ptr, selector) // 先放置函数选择器, 没有参数
+            let success := call(
+                gas(), // gas
+                addr, // to
+                0, // value
+                ptr, // input
+                0x4, // input size
+                ptr, // output
+                0x20 // output size
+            )
+            result := mload(ptr)
+        }
+
+        assertTrue(result == 888, "result should be 888");
+    }
+```
+

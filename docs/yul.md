@@ -1642,3 +1642,11 @@ contract YulDemoTest is DSTest {
 
 
 
+##  return(p, s)  revert(p, s)
+
+(我的理解) 这里的`return(p,s)` 不是solidity中的返回，而是终止执行
+
+他们两个都会终止执行，并返回内存中[p…(p+s))的数据，前者不会回退evm状态，后者会。
+
+
+

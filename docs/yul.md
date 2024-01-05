@@ -1553,3 +1553,92 @@ contract SimpleContract {
     }
 ```
 
+
+
+## callcode(g, a, v, in, insize, out, outsize)
+
+和`call`类似，只不过，上下文使用的是调用者的上下文
+
+```solidity
+// SPDX-License-Identifier: SEE LICENSE IN LICENSE
+pragma solidity ^0.8.11;
+
+contract SimpleContract {
+    uint256 private value; // slot 0
+
+    function getValue() public view returns (uint256) {
+        return value;
+    }
+
+    function setValue(uint256 v) public {
+        value = v;
+    }
+}
+
+contract YulDemoContract {
+    uint256 private value_0; // slot 0
+
+    function SetV0(uint256 value) public {
+        value_0 = value;
+    }
+
+    function GetV0() public view returns (uint256) {
+        return value_0;
+    }
+    
+    function CallCode(address addrOfSimpleContract, uint256 value) public{
+        bytes4 selector = bytes4(keccak256("setValue(uint256)"));
+        bool success;
+        assembly{
+            let ptr := mload(0x40)
+            mstore(ptr, selector)
+            mstore(add(ptr, 0x4), value)
+            //使用的是调用者的上下文，所以本合约的value_0会被设值，
+            //而simpleContract中的不会
+            success := callcode(
+                gas(),
+                addrOfSimpleContract,
+                0,
+                ptr,
+                0x24,
+                ptr,
+                0
+            )
+        }
+
+        require(success, "call code failed");
+    }
+}
+```
+
+```solidity
+// SPDX-License-Identifier: SEE LICENSE IN LICENSE
+pragma solidity ^0.8.11;
+
+import "forge-std/Test.sol";
+import "../src/yuldemo.sol";
+
+contract YulDemoTest is DSTest {
+    YulDemoContract demo;
+    SimpleContract simple;
+    
+    function testCallCode() public {
+        demo.CallCode(address(simple), 100);
+        // console2.logUint(demo.GetV0());
+        assertTrue(demo.GetV0() == 100, "result should be 100");
+    }
+}
+```
+
+
+
+## delegatecall(g, a, in, insize, out, outsize)
+
+和`callcode`类似，但保留了`caller`和`callvalue`
+
+## staticcall(g, a, in, insize, out, outsize)
+
+等同于 `call(g, a, 0, in, insize, out, outsize)` 但其不允许改变虚拟机状态，相当于是调用`pure`或`view`函数
+
+
+

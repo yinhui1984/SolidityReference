@@ -131,11 +131,11 @@ assembly {
   let ptr := mload(0x40)
 
   // (1) copy incoming call data
-  calldatacopy(ptr, 0, calldatasize)
+  calldatacopy(ptr, 0, calldatasize())
 
   // (2) forward call to logic contract
   // _impl is the address of current implemention 
-  let result := delegatecall(gas, _impl, ptr, calldatasize, 0, 0)
+  let result := delegatecall(gas, _impl, ptr, calldatasize(), 0, 0)
   let size := returndatasize()
 
   // (3) retrieve return data
@@ -350,8 +350,8 @@ UUPS与现有的ERC-20和ERC-721代币标准兼容，它也可以用于任何其
 function() external payable {
     assembly { // solium-disable-line
         let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)
-        calldatacopy(0x0, 0x0, calldatasize)
-        let success := delegatecall(sub(gas, 10000), contractLogic, 0x0, calldatasize, 0, 0)
+        calldatacopy(0x0, 0x0, calldatasize())
+        let success := delegatecall(sub(gas, 10000), contractLogic, 0x0, calldatasize(), 0, 0)
         let retSz := returndatasize()
         returndatacopy(0, 0, retSz)
         switch success
@@ -394,8 +394,8 @@ contract Proxy {
     function() external payable {
         assembly { // solium-disable-line
             let contractLogic := sload(0xc5f16f0fcc639fa48a6947836d9850f504798523bf8c9a3a87d5876cf622bcf7)
-            calldatacopy(0x0, 0x0, calldatasize)
-            let success := delegatecall(sub(gas, 10000), contractLogic, 0x0, calldatasize, 0, 0)
+            calldatacopy(0x0, 0x0, calldatasize())
+            let success := delegatecall(sub(gas, 10000), contractLogic, 0x0, calldatasize(), 0, 0)
             let retSz := returndatasize
             returndatacopy(0, 0, retSz)
             switch success
